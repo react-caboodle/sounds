@@ -1,5 +1,6 @@
 import React from "react";
 import PinInput from "react-pin-input";
+import { Redirect } from 'react-router-dom';
 import "./App.css";
 
 //components
@@ -8,11 +9,14 @@ import { Withdrawal } from './components/withdrawal';
 //services
 import { login } from './services/authenticationService';
 
-class App extends React.PureComponent {
+
+
+class App extends React.Component {
 
   state = {
     value: "",
-    currentBalance:0
+    currentBalance:0,
+    error: false
   };
 
   results;
@@ -24,9 +28,13 @@ class App extends React.PureComponent {
   onChange = value => {
     this.setState({ value });
     if (value.length === 4) {      
-      login(value).then(data=>
-        this.setState({currentBalance:data.data.currentBalance }));
-      
+      login(value).then(data => {
+        if (typeof data ==='number') {
+          this.setState({currentBalance: data});
+        } else {           
+          this.setState({error: true});
+        }
+      });
     }
   };
 
@@ -39,6 +47,12 @@ class App extends React.PureComponent {
   };
 
   render() {
+
+    if (this.state.error) {
+      console.log('meol redirecting');
+      return (<Redirect to='/error' />);
+    }
+
     return (
       <div className="app">
         <PinInput
